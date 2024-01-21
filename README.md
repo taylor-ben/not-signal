@@ -29,8 +29,8 @@ function App() {
   const numberSquared = useNumber(num => num*num*num)
   return (
     <>
-    hi {number}
-    <div>num squared {numberSquared}</div>
+    number {number}
+    <div>number squared {numberSquared}</div>
     </>
   )
 }
