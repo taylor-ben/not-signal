@@ -1,6 +1,6 @@
 {
   "name": "create-external-store",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "external store for react",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
