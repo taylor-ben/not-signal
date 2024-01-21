@@ -26,12 +26,12 @@ setInterval(() => {
 
 function App() {
   const number = useNumber()
-  const numberSquared = useNumber(num => num*num*num)
+  const numberSquared = useNumber(num => num*num)
   return (
     <>
-    number {number}
-    <div>number squared {numberSquared}</div>
-    </>
+      <div>Number {number}</div>
+      <div>Number squared {numberSquared}</div>
+    </dib>
   )
 }
 
