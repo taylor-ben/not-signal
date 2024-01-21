@@ -1,34 +1,26 @@
-import { useEffect, useState } from "react";
-import { BehaviorSubject, Subject } from "rxjs";
+import { useEffect, useState } from "react"
+import { BehaviorSubject, map } from "rxjs"
 
-export const useBehaviorSubject = <T,>(
-  behaviorSubject: BehaviorSubject<T>,
-  eventReaction?: (value: T) => void
-): [T, (value: T) => void] => {
-  const [currentState, setCurrentState] = useState(behaviorSubject.value);
-  useEffect(() => {
-    const subscription = behaviorSubject.subscribe((value) => {
-      setCurrentState(value)
-      eventReaction?.(value)
-    });
-    return () => subscription.unsubscribe();
-  }, [behaviorSubject]);
-  const setState = (value: T) => behaviorSubject.next(value);
-  return [currentState, setState];
-};
-
-export const useSubject = <T,>(
-  subject: Subject<T>,
-  eventReaction?: (value: T) => void
-): [T | undefined, (value: T) => void] => {
-  const [lastState, setLastState] = useState<T>()
-  useEffect(() => {
-    const subscription = subject.subscribe((value) => {
-      setLastState(value)
-      eventReaction?.(value)
-    });
-    return () => subscription.unsubscribe();
-  }, [subject]);
-  const setState = (value: T) => subject.next(value);
-  return [lastState, setState];
-};
+export const createExternalStore = <T,>(initial: T) => {
+  const bs = new BehaviorSubject(initial)
+  const useStore = (onChange?: (change: T) => T) => {
+    const [store, setStore] = useState(initial)
+    useEffect(() => {
+      const subscription = bs
+          .pipe(map((value) => {
+            return onChange ? onChange(value) : value
+          }))
+          .subscribe(value => setStore(value))
+        return () => subscription.unsubscribe()
+    }, [])
+    return store
+  }
+  const setStore = (input: T | ((prevValue: T) => T)) => {
+    if (typeof input === 'function') {
+      bs.next((input as ((prevValue: T) => T))(bs.value))
+    } else {
+      bs.next(input)
+    }
+  }
+  return [useStore, setStore] as const
+}

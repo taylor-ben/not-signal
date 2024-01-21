@@ -1,7 +1,7 @@
 {
-  "name": "use-rxjs-hooks",
-  "version": "1.0.22",
-  "description": "Hooks for rxjs",
+  "name": "create-external-store",
+  "version": "1.0.1",
+  "description": "external store for react",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
