@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react"
 import { BehaviorSubject, map } from "rxjs"
+import React from 'react'
 
-export const createExternalStore = <T,>(initial: T) => {
+type Signal<T> = JSX.Element & {
+  useValue: (onChange?: ((change: T) => T) | undefined) => T
+  setValue: (input: T | ((prevValue: T) => T)) => void
+  getValue: () => T
+}
+
+export const createSignal = <T,>(initial: T): Signal<T> => {
   const bs = new BehaviorSubject(initial)
-  const useStore = (onChange?: (change: T) => T) => {
+  const useValue = (onChange?: (change: T) => T) => {
     const [store, setStore] = useState(initial)
     useEffect(() => {
       const subscription = bs
@@ -15,12 +22,27 @@ export const createExternalStore = <T,>(initial: T) => {
     }, [])
     return store
   }
-  const setStore = (input: T | ((prevValue: T) => T)) => {
+  const setValue = (input: T | ((prevValue: T) => T)) => {
     if (typeof input === 'function') {
       bs.next((input as ((prevValue: T) => T))(bs.value))
     } else {
       bs.next(input)
     }
   }
-  return [useStore, setStore] as const
+
+  const getValue = () => bs.value
+
+  const Value = () => {
+    const value = useValue()
+    return <>{value}</>
+  }
+
+  const element = <Value />
+
+  return {
+    ...element,
+    getValue,
+    useValue,
+    setValue,
+  }
 }

@@ -1,4 +1,4 @@
-# create-external-store
+# not-signal
 
 This npm package provides easy-to-use and heighly performant state manager
 
@@ -7,7 +7,7 @@ This npm package provides easy-to-use and heighly performant state manager
 To install this package, run the following command:
 
 ```bash
-npm install create-external-store
+npm install not-signal
 ```
 
 ## Usage

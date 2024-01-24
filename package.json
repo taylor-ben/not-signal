@@ -1,20 +1,21 @@
 {
-  "name": "create-external-store",
-  "version": "1.0.2",
+  "name": "not-signal",
+  "version": "1.0.3",
   "description": "external store for react",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup index.ts --format cjs,esm --dts",
+    "build": "tsup index.tsx --format cjs,esm --dts",
     "lint": "tsc",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "pnpm run build && changeset publish"
+    "release": "pnpm run build && changeset publish",
+    "publish": "npm publish"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/taylor-ben/create-external-store"
+    "url": "git+https://github.com/taylor-ben/not-signal"
   },
   "keywords": [
     "rxjs",
