@@ -1,6 +1,6 @@
 # not-signal
 
-This npm package provides easy-to-use and heighly performant state manager
+This npm package provides signals usability without the overengineering
 
 ## Installation
 
@@ -12,30 +12,35 @@ npm install not-signal
 
 ## Usage
 
-createExternalStore return a hook and a setter.
 
-Use the hook in the component, use the setter anywhere.
-When you use the setter `setNumber(2)` components which use the hook `useNumber()` would be rerendered and display the new value. 
 
 ```tsx
-const [useNumber, setNumber] = createExternalStore<number>(1)
+// Create a signal observable by using createSignal
+export const numberSignal = createSignal(1)
 
+// Add 1 to the signal every second by using setValue
 setInterval(() => {
-  setNumber(num => num + 1)
+  numberSignal.setValue((num) => num + 1);
 }, 1000)
 
+// Subscribe to the signal in the component by using useValue hook
 function App() {
-  const number = useNumber()
-  const numberSquared = useNumber(num => num*num)
+  const number = numberSignal.useValue()
   return (
     <>
-      <div>Number {number}</div>
-      <div>Number squared {numberSquared}</div>
-    </dib>
+      The number is {number}
+    </>
   )
 }
 
-export default App
+// Alternatively, if we would like to avoid component rerender, we can use the signal directly in the jsx, and only numberSignal would be rerendered.
+function App() {
+  return (
+    <>
+      The number is {numberSignal}
+    </>
+  )
+}
 ```
 
 
