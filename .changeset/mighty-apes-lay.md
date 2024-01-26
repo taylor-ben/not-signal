@@ -1,0 +1,5 @@
+---
+"not-signal": patch
+---
+
+signal

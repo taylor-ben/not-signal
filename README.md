@@ -32,7 +32,8 @@ function App() {
     </>
   )
 }
-
+```
+```tsx
 // Alternatively, if we would like to avoid component rerender, we can use the signal directly in the jsx, and only numberSignal would be rerendered.
 function App() {
   return (
