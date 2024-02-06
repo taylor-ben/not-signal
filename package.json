@@ -1,6 +1,6 @@
 {
   "name": "not-signal",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "description": "external store for react",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -18,6 +18,10 @@
     "url": "git+https://github.com/taylor-ben/not-signal"
   },
   "keywords": [
+    "signal",
+    "signals",
+    "not-signal",
+    "react",
     "rxjs",
     "react",
     "hooks",
@@ -25,8 +29,7 @@
     "Observable",
     "Subject",
     "Behavior Subject",
-    "useBehaviorSubject",
-    "useSubject"
+    "Reactive"
   ],
   "author": "Taylor Ben",
   "license": "MIT",
