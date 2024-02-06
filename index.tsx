@@ -1,14 +1,18 @@
+'use client'
+
 import React from 'react'
 import { useEffect, useMemo, useState } from "react"
 import { BehaviorSubject, map, Observable } from "rxjs"
 
 export type Signal<T> = JSX.Element & {
   useValue: () => T
+  effect: (effectFn: (v: T) => void) => () => void
+  useSignalEffect: (effectFn: (v: T) => void) => void
   peek: () => T
   setValue: (input: T | ((prevValue: T) => T)) => void
   compute: <U>(computeFn: ComputeFn<T, U>) => ComputedSignal<U>
+  useCompute: <U>(computeFn: ComputeFn<T, U>) => ComputedSignal<U>
 }
-
 export type ComputedSignal<T> = Omit<Signal<T>, 'setValue'>
 export type ComputeFn<T, U> = (prevValue: T) => U
 
@@ -45,15 +49,25 @@ function createComputedSignal<T, U>(obs: Observable<T>, computeFn: ComputeFn<T, 
 
 function createBasicSignal<T>(obs: Observable<T>, peek: () => T): ComputedSignal<T> {
   const useValue = () => useSignalValue(obs, peek())
+  const effect = (effectFn: (v: T) => void) => {
+    const subscription = obs.subscribe(effectFn)
+    return () => subscription.unsubscribe()
+  }
+  const useSignalEffect = (effectFn: (v: T) => void) => useEffect(() => effect(effectFn), [obs])
   const SignalComponent = () => {
+    'use client'
     const value = useValue()
     return <>{value}</>
   }
+  const compute = <U,>(computeFn: ComputeFn<T, U>) => createComputedSignal(obs, computeFn, peek)
   return {
     ...(<SignalComponent />),
     peek,
     useValue,
-    compute: (computeFn) => createComputedSignal(obs, computeFn, peek),
+    effect,
+    useSignalEffect,
+    compute,
+    useCompute: (computeFn) => useMemo(() => compute(computeFn), [obs]),
   }
 }
 
