@@ -1,6 +1,6 @@
 {
   "name": "not-signal",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "external store for react",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -34,9 +34,9 @@
   "author": "Taylor Ben",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/taylor-ben/rxjs-hooks/issues"
+    "url": "https://github.com/taylor-ben/not-signal/issues"
   },
-  "homepage": "https://github.com/taylor-ben/rxjs-hooks#readme",
+  "homepage": "https://github.com/taylor-ben/not-signal#readme",
   "dependencies": {
     "rxjs": "^7.5.5",
     "react": "^17.0.2"

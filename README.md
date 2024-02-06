@@ -45,7 +45,7 @@ Utilize the signal directly within JSX to minimize component subscriptions and u
 const countSignal = createSignal(0);
 
 function Unoptimized() {
-  // Triggers component re-renders on `countSignal` changes.
+  // Triggers component re-renders on countSignal changes.
   const value = countSignal.useValue();
   return <p>{value}</p>;
 }
@@ -101,7 +101,7 @@ The `compute` method facilitates the creation of `ComputedSignal`s from existing
 const celsiusSignal = createSignal(0);
 const fahrenheitSignal = celsiusSignal.compute(c => c * 9 / 5 + 32);
 
-celsiusSignal.setValue(36); // Automatically updates `fahrenheitSignal`.
+celsiusSignal.setValue(36); // Automatically updates fahrenheitSignal.
 
 const TemperatureConverter = () => {
   return (
