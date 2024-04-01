@@ -1,7 +1,7 @@
 {
-  "name": "not-signal",
-  "version": "1.0.11",
-  "description": "external store for react",
+  "name": "signals-react",
+  "version": "1.0.0",
+  "description": "signals for react",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
