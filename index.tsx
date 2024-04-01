@@ -1,19 +1,21 @@
 'use client'
 
-import React from 'react'
-import { useEffect, useMemo, useState } from "react"
-import { BehaviorSubject, map, Observable } from "rxjs"
+import { useEffect, useMemo, useState } from 'react'
+import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs'
 
 export type Signal<T> = JSX.Element & {
-  useValue: () => T
+  use: () => T
   effect: (effectFn: (v: T) => void) => () => void
   useSignalEffect: (effectFn: (v: T) => void) => void
   peek: () => T
-  setValue: (input: T | ((prevValue: T) => T)) => void
+  set: (input: T | ((prevValue: T) => T)) => void
   compute: <U>(computeFn: ComputeFn<T, U>) => ComputedSignal<U>
   useCompute: <U>(computeFn: ComputeFn<T, U>) => ComputedSignal<U>
+  observable: Observable<T>
+  zero: () => void
 }
-export type ComputedSignal<T> = Omit<Signal<T>, 'setValue'>
+
+export type ComputedSignal<T> = Omit<Signal<T>, 'set' | 'zero'>
 export type ComputeFn<T, U> = (prevValue: T) => U
 
 export const useSignal = <T,>(initial: T): Signal<T> => {
@@ -25,30 +27,35 @@ export const createSignal = <T,>(initial: T): Signal<T> => {
 
   const peek = () => bs.value
 
-  const setValue = (input: T | ((prevValue: T) => T)) => {
+  const set = (input: T | ((prevValue: T) => T)) => {
     if (typeof input === 'function') {
-      bs.next((input as ((prevValue: T) => T))(bs.value))
+      bs.next((input as (prevValue: T) => T)(structuredClone(bs.value)))
     } else {
-      bs.next(input)
+      bs.next(structuredClone(input))
     }
   }
 
   const basicSignal = createBasicSignal(bs, peek)
 
-  return { 
+  return {
     ...basicSignal,
-    setValue,
+    set: set,
+    zero: () => set(initial),
   }
 }
 
-function createComputedSignal<T, U>(obs: Observable<T>, computeFn: ComputeFn<T, U>, peekOriginal: () => T): ComputedSignal<U> {
+function createComputedSignal<T, U>(
+  obs: Observable<T>,
+  computeFn: ComputeFn<T, U>,
+  peekOriginal: () => T
+): ComputedSignal<U> {
   const computedObservable = obs.pipe(map(computeFn))
   const peek = () => computeFn(peekOriginal())
   return createBasicSignal(computedObservable, peek)
 }
 
 function createBasicSignal<T>(obs: Observable<T>, peek: () => T): ComputedSignal<T> {
-  const useValue = () => useSignalValue(obs, peek())
+  const use = () => useSignalValue(obs, peek())
   const effect = (effectFn: (v: T) => void) => {
     const subscription = obs.subscribe(effectFn)
     return () => subscription.unsubscribe()
@@ -56,18 +63,19 @@ function createBasicSignal<T>(obs: Observable<T>, peek: () => T): ComputedSignal
   const useSignalEffect = (effectFn: (v: T) => void) => useEffect(() => effect(effectFn), [obs])
   const SignalComponent = () => {
     'use client'
-    const value = useValue()
+    const value = use()
     return <>{value}</>
   }
   const compute = <U,>(computeFn: ComputeFn<T, U>) => createComputedSignal(obs, computeFn, peek)
   return {
     ...(<SignalComponent />),
-    peek,
-    useValue,
+    peek: peek,
+    use: use,
     effect,
     useSignalEffect,
     compute,
     useCompute: (computeFn) => useMemo(() => compute(computeFn), [obs]),
+    observable: obs,
   }
 }
 
@@ -78,4 +86,20 @@ function useSignalValue<T>(observable: Observable<T>, initial: T): T {
     return () => subscription.unsubscribe()
   }, [observable])
   return value
+}
+
+export function combine<U, T extends any[]>(
+  signals: readonly [...{ [K in keyof T]: ComputedSignal<T[K]> }],
+  combineFn: (...values: { [K in keyof T]: T[K] }) => U
+): ComputedSignal<U> {
+  const peek = () =>
+    combineFn(...(signals.map((signal) => signal.peek()) as unknown as { [K in keyof T]: T[K] }))
+
+  const observables = signals.map((signal) => signal.observable)
+
+  const observablesCombined = combineLatest(observables).pipe(
+    map((values) => combineFn(...(values as unknown as { [K in keyof T]: T[K] })))
+  )
+
+  return createBasicSignal(observablesCombined, peek)
 }
